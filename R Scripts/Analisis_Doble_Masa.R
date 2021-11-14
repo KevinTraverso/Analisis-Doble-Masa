@@ -118,7 +118,7 @@ RainfallData3b <- window(RainfallData3,
                          end = as.Date(paste(b2, "01", "01",sep="-"),
                                        format="%Y-%m-%d"))
 
-RainfallData3b$D <-  RainfallData3b$D * factor
+RainfallData3b$C <-  RainfallData3b$C * factor
 
 RainfallData4 <- rbind(RainfallData3a,
                        RainfallData3b[-1,])

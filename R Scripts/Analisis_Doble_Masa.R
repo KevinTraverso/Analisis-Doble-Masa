@@ -15,7 +15,7 @@ library(reshape)
 
 # Importar los datos del archivo Excel ------------------------------------
 
-RainfallData <- read_excel("Data/RainfallData.xlsx", 
+RainfallData <- read_excel("./Data/RainfallData.xlsx", 
                            skip = 4)
 
 # View(RainfallData)
@@ -74,9 +74,10 @@ d1 <- window(RainfallData2,
 x = d1$PM
 y = d1$C
 
-lm_rainfall = lm(y ~ 1 + x)
+lm_rainfall = lm(y ~ +1 + x)
 lm <- summary(lm_rainfall)
 m1 <- lm$coefficients[2]
+m1
 
 # Obteniendo la pendiente m2
 b1=1979
@@ -91,10 +92,10 @@ d2 <- window(RainfallData2,
 x2 = d2$PM
 y2 = d2$C
 
-lm_rainfall2 = lm(y2 ~  -1 + x2)
+lm_rainfall2 = lm(y2 ~ +1 + x2)
 lm2 <- summary(lm_rainfall2)
-m2 <- lm2$coefficients[1]
-
+m2 <- lm2$coefficients[2]
+m2
 # Obteniendo el factor de correción
 factor = m1/m2
 factor

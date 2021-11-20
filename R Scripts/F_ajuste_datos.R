@@ -15,6 +15,7 @@
 Data_db1 <- function(Datos,Inicio,Fin){
   
   library(xts)
+  library(tibble)
   
   datos1 <- jsonify::from_json(Datos)
   cnames <- data.frame()
@@ -49,3 +50,4 @@ anlaisis1 <- Data_db1(Datos = "./Data/SerieAnual4EstRamis_anual.json",
                       Fin = "2010-12-31")
 
 
+Data_db1 <- 

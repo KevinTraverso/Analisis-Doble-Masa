@@ -1,11 +1,8 @@
 
 #* FUNCIONES DE EJECUCION PARA DOBLE MASA
 #* @autor: Kevin Traverso
-
-#* 
 #* Desarrollo de funcion para ingreso de datos Json anuales
 #* lectura y acjuste de datos
-#* 
 
 # PRIMERA FUNCION: Ajuste de datos y obtencion da acumulados para grafico
 
@@ -18,6 +15,9 @@ Data_db1 <- function(Datos,Inicio,Fin){
   library(xts)
   library(tibble)
   library(zoo)
+  library(ggplot2)
+  library(reshape)
+  library(hydroTSM)
   
   datos1 <- jsonify::from_json(Datos)
   cnames <- data.frame()
@@ -34,21 +34,52 @@ Data_db1 <- function(Datos,Inicio,Fin){
   }
   
   b <- do.call(merge,lapply(a,as.xts))
-  
   colnames(b) <- cnames
+  c <- window(b, start = Inicio, end = Fin)
   
-  c <- window(b,start = Inicio, end = Fin)
-  m1 <- data.frame(c)
+  # llevando los datos diarios a anuales
+  # para la version final cambiar T a F
+  c1 <- hydroTSM::daily2annual(c,
+                               FUN = sum, 
+                               na.rm = T)
+  m1 <- data.frame(c1)
+  
   m1 <- m1 %>%
     add_column(PM = rowMeans(m1))
   
   m2 <- cumsum(m1)
+  m2 <- data.frame(Year = seq(as.Date(Inicio),
+                              as.Date(Fin),
+                              by = "year"),
+                   m2)
   
-  return(list(m1, m2)) # matrices para mostar en el portal
+  m1 <- data.frame(Year = seq(as.Date(Inicio), 
+                              as.Date(Fin),
+                              by = "year"), 
+                   m1)
+  
+  # REALIZANDO EL GRAFICO DOBLE MASA
+  k <- data.frame(a=c(1:max(m2$PM)),
+                  b=c(1:max(m2$PM)))
+  
+  plot1 <- melt(m2[,-1], 
+                id.vars = "PM", 
+                variable_name = "Estaciones")
+  
+  grf1 <- ggplot(plot1, aes(PM,value)) +
+    geom_line(aes(colour = Estaciones)) + 
+    geom_point(aes(colour = Estaciones)) +
+    geom_line(data = k,
+              mapping = aes(a,b),
+              linetype = "dashed") +
+    coord_fixed()
+  
+  return(list(m1, m2, grf1)) # matrices para mostar en el portal
+  
 }
 
-analisis <- Data_db1(Datos = "./Data/SerieAnual4EstRamis_anual.json",
-                      Inicio = "2000-01-01", 
+analisis <- Data_db1(Datos = "./Data/SerieDiariaRamis4Esta.json",
+                     Inicio = "1970-01-01", 
                       Fin = "2010-12-31")
 
 # Funcion para encontrar los valores de m1, deacuerdo ala seleccion del 
